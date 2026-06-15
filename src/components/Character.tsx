@@ -1,288 +1,242 @@
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
+import { useEffect, useRef, useState } from 'react'
 
-// ─── Props ────────────────────────────────────────────────────────────────────
 interface CharacterProps {
-  onClick?: () => void;
+  onClick?: () => void
 }
 
-// ─── Shape Builder Helpers ────────────────────────────────────────────────────
+const R = 26
+const CX = 36, CY = 36
 
-const R = 13;
-
-function buildFlower(petalR: number, pinchR: number, ctrl: number): string {
-  const n = 5;
-  const tips: { x: number; y: number; a: number }[] = [];
-  const pinches: { x: number; y: number; a: number }[] = [];
-
-  for (let i = 0; i < n; i++) {
-    const tipA   = (i / n) * Math.PI * 2 - Math.PI / 2;
-    const pinchA = tipA + Math.PI / n;
-    tips.push({   x: Math.cos(tipA)   * petalR, y: Math.sin(tipA)   * petalR, a: tipA   });
-    pinches.push({ x: Math.cos(pinchA) * pinchR, y: Math.sin(pinchA) * pinchR, a: pinchA });
-  }
-
-  let d = "";
-  for (let i = 0; i < n; i++) {
-    const cur  = tips[i];
-    const pin  = pinches[i];
-    const nxt  = tips[(i + 1) % n];
-
-    const cp1x = Math.cos(cur.a + Math.PI / n * ctrl)  * petalR * 0.85;
-    const cp1y = Math.sin(cur.a + Math.PI / n * ctrl)  * petalR * 0.85;
-    const cp2x = Math.cos(pin.a - Math.PI / n * ctrl)  * pinchR * 1.40;
-    const cp2y = Math.sin(pin.a - Math.PI / n * ctrl)  * pinchR * 1.40;
-    const cp3x = Math.cos(pin.a + Math.PI / n * ctrl)  * pinchR * 1.40;
-    const cp3y = Math.sin(pin.a + Math.PI / n * ctrl)  * pinchR * 1.40;
-    const cp4x = Math.cos(nxt.a - Math.PI / n * ctrl)  * petalR * 0.85;
-    const cp4y = Math.sin(nxt.a - Math.PI / n * ctrl)  * petalR * 0.85;
-
-    const f = (v: number) => v.toFixed(4);
-    if (i === 0) d += `M ${f(cur.x)} ${f(cur.y)} `;
-    d += `C ${f(cp1x)} ${f(cp1y)} ${f(cp2x)} ${f(cp2y)} ${f(pin.x)} ${f(pin.y)} `;
-    d += `C ${f(cp3x)} ${f(cp3y)} ${f(cp4x)} ${f(cp4y)} ${f(nxt.x)} ${f(nxt.y)} `;
-  }
-  return d + "Z";
-}
-
-const SHAPES = {
-  circle:    `M0-${R}C${R * 0.55}-${R},${R}-${R * 0.55},${R},0C${R},${R * 0.55},${R * 0.55},${R},0,${R}C-${R * 0.55},${R},-${R},${R * 0.55},-${R},0C-${R},-${R * 0.55},-${R * 0.55},-${R},0,-${R}Z`,
-  stretch:   `M0-${R * 1.58}C${R * 0.36}-${R * 1.58},${R * 0.58}-${R * 0.36},${R * 0.58},0C${R * 0.58},${R * 0.36},${R * 0.36},${R * 1.58},0,${R * 1.58}C-${R * 0.36},${R * 1.58},-${R * 0.58},${R * 0.36},-${R * 0.58},0C-${R * 0.58},-${R * 0.36},-${R * 0.36},-${R * 1.58},0,-${R * 1.58}Z`,
-  ring:      `M0-${R}C${R * 0.55}-${R},${R}-${R * 0.55},${R},0C${R},${R * 0.55},${R * 0.55},${R},0,${R}C-${R * 0.55},${R},-${R},${R * 0.55},-${R},0C-${R},-${R * 0.55},-${R * 0.55},-${R},0,-${R}Z`,
-  hourglass: `M0-${R * 1.12}C${R * 0.90}-${R * 1.12},${R * 0.26},-${R * 0.16},${R * 0.20},0C${R * 0.26},${R * 0.16},${R * 0.90},${R * 1.12},0,${R * 1.12}C-${R * 0.90},${R * 1.12},-${R * 0.26},${R * 0.16},-${R * 0.20},0C-${R * 0.26},-${R * 0.16},-${R * 0.90},-${R * 1.12},0,-${R * 1.12}Z`,
-  organic:   `M0-${R * 1.08}C${R * 0.70}-${R * 1.22},${R * 1.18},-${R * 0.36},${R * 0.90},${R * 0.28}C${R * 0.66},${R * 0.94},-${R * 0.33},${R * 1.22},-${R * 0.73},${R * 0.84}C-${R * 1.24},${R * 0.40},-${R * 1.14},-${R * 0.62},-${R * 0.53},-${R * 0.94}C-${R * 0.16},-${R * 1.36},-${R * 0.20},-${R * 1.04},0,-${R * 1.08}Z`,
-  teardrop:  `M0-${R * 1.28}C${R * 0.08}-${R * 1.28},${R * 0.95}-${R * 0.55},${R * 0.95},${R * 0.22}C${R * 0.95},${R * 0.82},${R * 0.52},${R * 1.18},0,${R * 1.18}C-${R * 0.52},${R * 1.18},-${R * 0.95},${R * 0.82},-${R * 0.95},${R * 0.22}C-${R * 0.95},-${R * 0.55},-${R * 0.08},-${R * 1.28},0,-${R * 1.28}Z`,
-  infinity:  `M0-${R * 0.18}C-${R * 0.35}-${R * 0.72},-${R * 1.45}-${R * 0.75},-${R * 1.45},0C-${R * 1.45},${R * 0.75},-${R * 0.35},${R * 0.72},0,${R * 0.18}C${R * 0.35},${R * 0.72},${R * 1.45},${R * 0.75},${R * 1.45},0C${R * 1.45},-${R * 0.75},${R * 0.35},-${R * 0.72},0,-${R * 0.18}Z`,
-  flower:    buildFlower(R * 1.18, R * 0.18, 0.55),
-} as const;
-
-type ShapeName = keyof typeof SHAPES;
-
-const MORPH_SEQ: ShapeName[] = [
-  "circle", "stretch", "teardrop", "circle",
-  "ring",   "organic", "circle",   "hourglass",
-  "circle", "infinity","flower",   "circle",
-  "stretch","hourglass","circle",  "teardrop",
-  "flower", "circle",  "ring",     "organic",
-  "circle", "infinity","circle",   "flower",
-];
-
-const RING_HOLE_R = R * 0.42;
-const INF_HOLE_R  = R * 0.40;
-const INF_HOLE_X  = R * 0.72;
-
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function Character({ onClick }: CharacterProps) {
-  const wrapRef     = useRef<HTMLDivElement>(null);
-  const svgRef      = useRef<SVGSVGElement>(null);
-  const pathRef     = useRef<SVGPathElement>(null);
-  const maskHoleRef = useRef<SVGCircleElement>(null);
-  const infHoleLRef = useRef<SVGCircleElement>(null);
-  const infHoleRRef = useRef<SVGCircleElement>(null);
-  const ringEdgeRef = useRef<SVGCircleElement>(null);
-  const infEdgeLRef = useRef<SVGCircleElement>(null);
-  const infEdgeRRef = useRef<SVGCircleElement>(null);
+  const canvasRef  = useRef<HTMLCanvasElement>(null)
+  const hoveredRef = useRef(false)
+  const [tooltipVisible, setTooltipVisible] = useState(false)
+  const [tooltipFading, setTooltipFading] = useState(false)
+
+  // Show tooltip on first visit only
+  useEffect(() => {
+    
+    
+
+    const showTimer = setTimeout(() => {
+      setTooltipVisible(true)
+
+      // Auto fade out after 5 seconds
+      const fadeTimer = setTimeout(() => {
+        setTooltipFading(true)
+        setTimeout(() => {
+          setTooltipVisible(false)
+          
+        }, 600)
+      }, 5000)
+
+      return () => clearTimeout(fadeTimer)
+    }, 2000)
+
+    return () => clearTimeout(showTimer)
+  }, [])
+
+  const handleClick = () => {
+    // Dismiss tooltip immediately on click
+    if (tooltipVisible) {
+      setTooltipFading(true)
+      setTimeout(() => {
+        setTooltipVisible(false)
+        
+      }, 400)
+    }
+    onClick?.()
+  }
 
   useEffect(() => {
-    const wrap = wrapRef.current;
-    const svg  = svgRef.current;
-    const path = pathRef.current;
-    if (!wrap || !svg || !path) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')!
+    const DPR = window.devicePixelRatio || 1
 
-    path.setAttribute("d", SHAPES.circle);
+    canvas.width  = 72 * DPR
+    canvas.height = 72 * DPR
+    ctx.scale(DPR, DPR)
 
-    // ── LOOP 1 — VERTICAL FLOAT — 100% original ───────────────────────────
-    const MARGIN    = 20;
-    const FLOAT_DUR = 6.5;
-    let floatTween: gsap.core.Tween | null = null;
+    let t = 0
+    let hoverT = 0
+    let raf: number
+    const PI2 = Math.PI * 2
 
-    function floatUp() {
-      const travel = window.innerHeight - MARGIN * 2 - 60;
-      gsap.to(svg, { scaleX: 0.88, scaleY: 1.14, duration: 0.9, ease: "sine.out", transformOrigin: "50% 50%" });
-      gsap.to(svg, { scaleX: 1.0, scaleY: 1.0, duration: 2.0, ease: "sine.inOut", delay: 1.2, transformOrigin: "50% 50%" });
-      floatTween = gsap.to(wrap, {
-        y: -travel, duration: FLOAT_DUR, ease: "sine.inOut",
-        onComplete() {
-          gsap.to(svg, {
-            scaleX: 1.10, scaleY: 0.92, duration: 0.22, ease: "power2.out", transformOrigin: "50% 50%",
-            onComplete() { gsap.to(svg, { scaleX: 1.0, scaleY: 1.0, duration: 0.45, ease: "elastic.out(1, 0.5)", transformOrigin: "50% 50%" }); },
-          });
-          floatDown();
-        },
-      });
-    }
-
-    function floatDown() {
-      gsap.to(svg, { scaleX: 0.88, scaleY: 1.14, duration: 0.9, ease: "sine.out", transformOrigin: "50% 50%" });
-      gsap.to(svg, { scaleX: 1.0, scaleY: 1.0, duration: 2.0, ease: "sine.inOut", delay: 1.2, transformOrigin: "50% 50%" });
-      floatTween = gsap.to(wrap, {
-        y: 0, duration: FLOAT_DUR, ease: "sine.inOut",
-        onComplete() {
-          gsap.to(svg, {
-            scaleX: 1.10, scaleY: 0.92, duration: 0.22, ease: "power2.out", transformOrigin: "50% 50%",
-            onComplete() { gsap.to(svg, { scaleX: 1.0, scaleY: 1.0, duration: 0.45, ease: "elastic.out(1, 0.5)", transformOrigin: "50% 50%" }); },
-          });
-          floatUp();
-        },
-      });
-    }
-
-    floatUp();
-
-    // ── LOOP 2 — SHAPE MORPH — 100% original ──────────────────────────────
-    const MORPH_DUR = 1.1;
-    let   morphIdx  = 0;
-    let   prevShape: ShapeName = "circle";
-    let   morphTimer: gsap.core.Tween | null = null;
-
-    function closeHoles(dur: number) {
-      gsap.to(maskHoleRef.current,  { duration: dur, ease: "power2.inOut", attr: { r: 0 } });
-      gsap.to(ringEdgeRef.current,  { duration: dur, ease: "power2.inOut", attr: { r: 0 } });
-      gsap.to(infHoleLRef.current,  { duration: dur, ease: "power2.inOut", attr: { r: 0 } });
-      gsap.to(infHoleRRef.current,  { duration: dur, ease: "power2.inOut", attr: { r: 0 } });
-      gsap.to(infEdgeLRef.current,  { duration: dur, ease: "power2.inOut", attr: { r: 0 } });
-      gsap.to(infEdgeRRef.current,  { duration: dur, ease: "power2.inOut", attr: { r: 0 } });
-    }
-
-    function morphNext() {
-      const name        = MORPH_SEQ[morphIdx % MORPH_SEQ.length];
-      morphIdx++;
-      const isRing      = name      === "ring";
-      const isInfinity  = name      === "infinity";
-      const wasRing     = prevShape  === "ring";
-      const wasInfinity = prevShape  === "infinity";
-
-      if ((wasRing || wasInfinity) && !isRing && !isInfinity) closeHoles(MORPH_DUR * 0.5);
-      if (isRing) {
-        closeHoles(0.1);
-        gsap.to(maskHoleRef.current, { duration: MORPH_DUR * 0.72, ease: "power2.inOut", attr: { r: RING_HOLE_R } });
-        gsap.to(ringEdgeRef.current, { duration: MORPH_DUR * 0.72, ease: "power2.inOut", attr: { r: RING_HOLE_R } });
+    function buildSurface(time: number, hv: number) {
+      const pts: { x: number; y: number }[] = []
+      const N = 128
+      for (let i = 0; i < N; i++) {
+        const angle = (i / N) * PI2 - Math.PI / 2
+        const w1 = Math.sin(angle * 4 + time * 0.9)  * (1.8 + hv * 1.4)
+        const w2 = Math.sin(angle * 6 - time * 1.3)  * (1.2 + hv * 1.0)
+        const w3 = Math.sin(angle * 3 + time * 0.5 + 1.2) * (1.0 + hv * 0.8)
+        const w4 = hv * Math.sin(angle * 9 + time * 2.4) * 1.8
+        const w5 = Math.sin(angle * 5 - time * 0.7) * Math.cos(time * 0.4) * 1.0
+        const r  = R + w1 + w2 + w3 + w4 + w5
+        pts.push({ x: CX + Math.cos(angle) * r, y: CY + Math.sin(angle) * r })
       }
-      if (isInfinity) {
-        closeHoles(0.1);
-        gsap.to(infHoleLRef.current, { duration: MORPH_DUR * 0.72, ease: "power2.inOut", attr: { r: INF_HOLE_R }, delay: 0.15 });
-        gsap.to(infHoleRRef.current, { duration: MORPH_DUR * 0.72, ease: "power2.inOut", attr: { r: INF_HOLE_R }, delay: 0.15 });
-        gsap.to(infEdgeLRef.current, { duration: MORPH_DUR * 0.72, ease: "power2.inOut", attr: { r: INF_HOLE_R }, delay: 0.15 });
-        gsap.to(infEdgeRRef.current, { duration: MORPH_DUR * 0.72, ease: "power2.inOut", attr: { r: INF_HOLE_R }, delay: 0.15 });
-      }
-      morphTimer = gsap.to(path, { duration: MORPH_DUR, ease: "sine.inOut", attr: { d: SHAPES[name] }, onComplete: morphNext });
-      prevShape = name;
+      return pts
     }
 
-    morphNext();
+    function draw() {
+      t += 0.016
+      if (hoveredRef.current) hoverT = Math.min(hoverT + 0.06, 1)
+      else hoverT = Math.max(hoverT - 0.04, 0)
 
-    // ── LOOP 3 — ROTATION — 100% original ─────────────────────────────────
-    const rotTween = gsap.to(svg, { rotation: 360, duration: 22, ease: "none", repeat: -1, transformOrigin: "50% 50%" });
+      ctx.clearRect(0, 0, 72, 72)
+      const pts = buildSurface(t, hoverT)
 
-    // ── HOVER — 100% original ──────────────────────────────────────────────
-    const handleEnter = () => gsap.to(svg, { scale: 1.35, duration: 0.5, ease: "back.out(1.8)", transformOrigin: "50% 50%" });
-    const handleLeave = () => gsap.to(svg, { scale: 1.0,  duration: 0.6, ease: "elastic.out(1, 0.5)", transformOrigin: "50% 50%" });
+      // Outer halo
+      const halo = ctx.createRadialGradient(CX, CY, R * 0.7, CX, CY, R + 18)
+      halo.addColorStop(0, `rgba(228,226,222,${0.10 + hoverT * 0.10})`)
+      halo.addColorStop(1, 'rgba(0,0,0,0)')
+      ctx.fillStyle = halo
+      ctx.beginPath(); ctx.arc(CX, CY, R + 18, 0, PI2); ctx.fill()
 
-    svg.addEventListener("mouseenter", handleEnter);
-    svg.addEventListener("mouseleave", handleLeave);
+      // Surface
+      ctx.beginPath()
+      ctx.moveTo(pts[0].x, pts[0].y)
+      for (let i = 1; i < pts.length; i++) {
+        const curr = pts[i]
+        const next = pts[(i + 1) % pts.length]
+        const cpx2 = (curr.x + next.x) / 2
+        const cpy2 = (curr.y + next.y) / 2
+        ctx.quadraticCurveTo(curr.x, curr.y, cpx2, cpy2)
+      }
+      ctx.closePath()
 
-    return () => {
-      floatTween?.kill();
-      morphTimer?.kill();
-      rotTween.kill();
-      gsap.killTweensOf(wrap);
-      gsap.killTweensOf(svg);
-      gsap.killTweensOf(path);
-      gsap.killTweensOf(maskHoleRef.current);
-      gsap.killTweensOf(ringEdgeRef.current);
-      gsap.killTweensOf(infHoleLRef.current);
-      gsap.killTweensOf(infHoleRRef.current);
-      gsap.killTweensOf(infEdgeLRef.current);
-      gsap.killTweensOf(infEdgeRRef.current);
-      svg.removeEventListener("mouseenter", handleEnter);
-      svg.removeEventListener("mouseleave", handleLeave);
-    };
-  }, []);
+      // Fill
+      const fill = ctx.createRadialGradient(CX - 7, CY - 9, 2, CX, CY, R + 4)
+      fill.addColorStop(0,    `rgba(255,255,255,${0.82 + hoverT * 0.10})`)
+      fill.addColorStop(0.30, `rgba(232,230,226,${0.50 + hoverT * 0.08})`)
+      fill.addColorStop(0.65, 'rgba(200,198,194,0.22)')
+      fill.addColorStop(1,    'rgba(158,156,152,0.06)')
+      ctx.fillStyle = fill
+      ctx.fill()
+
+      ctx.strokeStyle = `rgba(215,213,209,${0.52 + hoverT * 0.28})`
+      ctx.lineWidth = 0.8
+      ctx.stroke()
+
+      // Highlight
+      ctx.fillStyle = `rgba(255,255,255,${0.52 + hoverT * 0.18})`
+      ctx.beginPath(); ctx.ellipse(CX - 8, CY - 10, 7, 4.2, -0.38, 0, PI2); ctx.fill()
+      ctx.fillStyle = `rgba(255,255,255,${0.82 + hoverT * 0.12})`
+      ctx.beginPath(); ctx.arc(CX - 11, CY - 13, 1.4, 0, PI2); ctx.fill()
+
+      // Inner shimmer rings
+      ctx.save(); ctx.clip()
+      const shimmerA = 0.04 + hoverT * 0.08
+      ctx.strokeStyle = `rgba(240,238,234,${shimmerA})`
+      ctx.lineWidth = 1.2
+      ctx.setLineDash([6, 10])
+      ctx.lineDashOffset = -t * 18
+      ctx.beginPath(); ctx.arc(CX, CY, R * 0.62, 0, PI2); ctx.stroke()
+      ctx.lineDashOffset = t * 12
+      ctx.strokeStyle = `rgba(240,238,234,${shimmerA * 0.6})`
+      ctx.beginPath(); ctx.arc(CX, CY, R * 0.38, 0, PI2); ctx.stroke()
+      ctx.setLineDash([]); ctx.restore()
+
+      raf = requestAnimationFrame(draw)
+    }
+
+    draw()
+    return () => cancelAnimationFrame(raf)
+  }, [])
 
   return (
-    <div
-      ref={wrapRef}
-      onClick={onClick}
-      style={{
-        position:       "fixed",
-        right:          "36px",  // shifted further left (was 24px)
-        bottom:         "40px",  // lifted up (was 20px)
-        zIndex:         50,
-        width:          "71px",
-        height:         "71px",
-        display:        "flex",
-        alignItems:     "center",
-        justifyContent: "center",
-        cursor:         "pointer",
-        pointerEvents:  "none",
-      }}
-    >
-      <svg
-        ref={svgRef}
-        width="71"
-        height="71"
-        viewBox="-35 -35 70 70"
-        overflow="visible"
-        style={{ pointerEvents: "auto", overflow: "visible" }}
-      >
-        <defs>
-          {/* Fill gradient — 100% original, untouched */}
-          <radialGradient id="char-fill" cx="32%" cy="28%" r="68%">
-            <stop offset="0%"   stopColor="rgba(255,255,255,0.60)" />
-            <stop offset="45%"  stopColor="rgba(140,205,255,0.22)" />
-            <stop offset="100%" stopColor="rgba(80,140,255,0.07)"  />
-          </radialGradient>
+    <div style={{
+      position: 'fixed',
+      right: '36px',
+      bottom: '36px',
+      zIndex: 150,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+    }}>
 
-          {/*
-            CHANGED — glow filter: boosts perceived brightness by blending
-            a colour-amplified blur behind the original source graphic.
-            The feColorMatrix multiplies the RGB channels and boosts alpha
-            so the shape radiates light without altering the fill colours.
-          */}
-          <filter id="char-glow" x="-70%" y="-70%" width="240%" height="240%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
-            <feColorMatrix
-              in="blur" type="matrix"
-              values="1 0 0 0 0.35
-                      0 1 0 0 0.55
-                      0 0 1 0 1.00
-                      0 0 0 3.2 0"
-              result="coloredGlow"
+      {/* Tooltip */}
+      {tooltipVisible && (
+        <div style={{
+          position: 'absolute',
+          bottom: '86px',
+          right: '8px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          gap: '4px',
+          opacity: tooltipFading ? 0 : 1,
+          transform: tooltipFading ? 'translateY(6px)' : 'translateY(0)',
+          transition: 'opacity 0.6s ease, transform 0.6s ease',
+          animation: tooltipFading ? 'none' : 'tooltipIn 0.5s ease forwards',
+          pointerEvents: 'none',
+        }}>
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '11px',
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: 'rgba(200,198,194,0.75)',
+            whiteSpace: 'nowrap',
+            padding: '6px 12px',
+            borderRadius: '999px',
+            background: 'rgba(20,20,18,0.72)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '0.5px solid rgba(200,198,194,0.18)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+          }}>
+            click me
+          </span>
+
+          {/* Curved arrow pointing down-right toward orb */}
+          <svg
+            width="28" height="32"
+            viewBox="0 0 28 32"
+            fill="none"
+            style={{ marginRight: '10px' }}
+          >
+            <path
+              d="M 6 2 C 6 18, 20 18, 22 28"
+              stroke="rgba(200,198,194,0.55)"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              fill="none"
+              strokeDasharray="3 3"
             />
-            <feMerge>
-              <feMergeNode in="coloredGlow" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+            {/* Arrowhead */}
+            <path
+              d="M 18 26 L 22 29 L 24 24"
+              stroke="rgba(200,198,194,0.55)"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </svg>
+        </div>
+      )}
 
-          <mask id="char-mask">
-            <rect x="-35" y="-35" width="70" height="70" fill="white" />
-            <circle ref={maskHoleRef} cx="0"          cy="0" r="0" fill="black" />
-            <circle ref={infHoleLRef} cx={-INF_HOLE_X} cy="0" r="0" fill="black" />
-            <circle ref={infHoleRRef} cx={INF_HOLE_X}  cy="0" r="0" fill="black" />
-          </mask>
-        </defs>
+      <style>{`
+        @keyframes tooltipIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
 
-        {/* Main shape — glow filter applied here for brightness */}
-        <g mask="url(#char-mask)" filter="url(#char-glow)">
-          <path
-            ref={pathRef}
-            fill="url(#char-fill)"
-            stroke="rgba(210,235,255,0.80)" // CHANGED: was 0.62 — slightly brighter stroke
-            strokeWidth="1.0"               // CHANGED: was 0.8 — marginally thicker
-          />
-        </g>
-
-        {/* Inner edges — CHANGED: slightly brighter */}
-        <circle ref={ringEdgeRef} cx="0"          cy="0" r="0" fill="none" stroke="rgba(180,220,255,0.75)" strokeWidth="0.7" />
-        <circle ref={infEdgeLRef} cx={-INF_HOLE_X} cy="0" r="0" fill="none" stroke="rgba(180,220,255,0.75)" strokeWidth="0.7" />
-        <circle ref={infEdgeRRef} cx={INF_HOLE_X}  cy="0" r="0" fill="none" stroke="rgba(180,220,255,0.75)" strokeWidth="0.7" />
-
-        {/* Highlights — CHANGED: boosted opacity for more pop */}
-        <ellipse cx="-4" cy="-6" rx="4" ry="2.8" fill="rgba(255,255,255,0.60)" transform="rotate(-18,-4,-6)" style={{ pointerEvents: "none" }} />
-        <circle  cx="-6" cy="-8" r="1.1"          fill="rgba(255,255,255,0.88)"                              style={{ pointerEvents: "none" }} />
-        <ellipse cx="5"  cy="6"  rx="2.5" ry="1.5" fill="rgba(255,255,255,0.25)" transform="rotate(15,5,6)"  style={{ pointerEvents: "none" }} />
-      </svg>
+      {/* Orb */}
+      <div
+        onClick={handleClick}
+        onMouseEnter={() => { hoveredRef.current = true }}
+        onMouseLeave={() => { hoveredRef.current = false }}
+        style={{ cursor: 'pointer', width: '72px', height: '72px' }}
+      >
+        <canvas
+          ref={canvasRef}
+          style={{ width: '72px', height: '72px' }}
+        />
+      </div>
     </div>
-  );
+  )
 }
