@@ -303,8 +303,25 @@ export default function HeroText({ onSkipRects, className }: HeroTextProps) {
             and ship — from model to interface.
           </p>
           <div ref={buttonsRef} className="hero-buttons">
-            <button className="btn-primary">View Work</button>
-            <button className="btn-ghost">Know Me</button>
+            <button 
+              className="btn-primary"
+              onClick={() => window.dispatchEvent(new Event('hero:viewWork'))}
+            >
+            View Work
+            </button>
+
+            <button 
+              className="btn-ghost"
+              onClick={() => window.dispatchEvent(new Event('hero:knowMe'))}
+            >
+            Know Me
+            </button>
+            <button 
+            className="btn-ghost"
+            onClick={() => window.dispatchEvent(new Event('hero:contact'))}
+            >
+            Contact Me
+            </button>
           </div>
         </div>
       </div>

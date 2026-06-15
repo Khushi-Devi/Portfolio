@@ -1,20 +1,22 @@
+import React from 'react'
 import { motion, AnimatePresence, useMotionValue, animate, PanInfo } from 'framer-motion'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { projects } from '../data/projects.data'
 import { Project } from '../data/projects.types'
 import ProjectCard from './ProjectCard'
 import ProjectDetail from './ProjectDetail'
-import NetworkBackground from './NetworkBackground'
 
-const Projects = () => {
+interface ProjectsProps {
+  cardRectRef: React.RefObject<{ x: number; y: number; w: number; h: number } | null>
+}
+
+const Projects = ({ cardRectRef }: ProjectsProps) => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [originRect, setOriginRect] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const dragX = useMotionValue(0)
   const sectionRef = useRef<HTMLElement>(null)
-  // Anchors always point to the static center position — never chase the card during animation
-  const cardRectRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null)
-
+  
   const lastNavTime = useRef(0)
   const accDelta = useRef(0)
   const isInsideSection = useRef(false)
@@ -155,7 +157,7 @@ const Projects = () => {
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
-          background: '#0a0a0a',
+          background: 'transparent',
           boxSizing: 'border-box',
         }}
       >
@@ -164,9 +166,6 @@ const Projects = () => {
           html::-webkit-scrollbar { display: none; }
           body { -ms-overflow-style: none; }
         `}</style>
-
-        {/* FIX 3 & 4: Pass the ref object — canvas reads it directly, no stale prop */}
-        <NetworkBackground cardRectRef={cardRectRef} />
 
         {/* Header */}
         <motion.div
@@ -186,7 +185,7 @@ const Projects = () => {
             fontSize: '10px',
             letterSpacing: '0.32em',
             textTransform: 'uppercase',
-            color: 'rgba(200,198,194,0.25)',
+            color: 'rgba(200,198,194,0.5)',
             margin: '0 0 12px',
             fontFamily: "'DM Sans', sans-serif",
           }}>
@@ -206,7 +205,7 @@ const Projects = () => {
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '12px',
-            color: 'rgba(200,198,194,0.2)',
+            color: 'rgba(200,198,194,0.5)',
             letterSpacing: '0.12em',
             margin: 0,
           }}>
@@ -334,7 +333,7 @@ const Projects = () => {
           <span style={{
             fontFamily: "'DM Sans', sans-serif",
             fontSize: '11px', letterSpacing: '0.18em',
-            color: 'rgba(200,198,194,0.28)',
+            color: 'rgba(200,198,194,0.55)',
           }}>
             {String(currentIndex + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
           </span>
@@ -359,7 +358,7 @@ const Projects = () => {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}
           style={{
             marginTop: '14px', fontSize: '9px', letterSpacing: '0.24em',
-            color: 'rgba(200,198,194,0.1)', textTransform: 'uppercase',
+            color: 'rgba(200,198,194,0.55)', textTransform: 'uppercase',
             fontFamily: "'DM Sans', sans-serif", flexShrink: 0,
           }}
         >

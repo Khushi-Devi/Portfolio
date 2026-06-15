@@ -98,7 +98,7 @@ const NetworkBackground = ({ cardRectRef }: NetworkBackgroundProps) => {
           if (d < 240) {
             const a = (1 - d / 240) * 0.52
             const combined = a * Math.min((pts[i] as any).alpha ?? 1, (pts[j] as any).alpha ?? 1)
-            ctx.strokeStyle = `rgba(200,198,194,${combined})`
+            ctx.strokeStyle = `rgba(220,220,228,${combined})`
             ctx.lineWidth = 0.6
             ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y)
             ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke()
@@ -116,12 +116,12 @@ const NetworkBackground = ({ cardRectRef }: NetworkBackgroundProps) => {
           if (d < 220) {
             const base    = (1 - d / 220) * 0.85
             const flicker = 0.65 + Math.sin(t * 2.8 + pi * 0.7 + ai * 0.5) * 0.35
-            ctx.strokeStyle = `rgba(220,218,214,${base * flicker * nodeAlpha})`
+            ctx.strokeStyle = `rgba(235,235,242,${base * flicker * nodeAlpha})`
             ctx.lineWidth = 0.65
             ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(a.x, a.y); ctx.stroke()
             if (Math.sin(t * 1.8 + pi * 0.9 + ai * 1.1) > 0.78) {
               const prog = Math.sin(t * 3.5 + pi * 0.4) * 0.5 + 0.5
-              ctx.fillStyle = `rgba(235,233,229,${0.85 * nodeAlpha})`
+              ctx.fillStyle = `rgba(245,245,252,${0.9 * nodeAlpha})`
               ctx.beginPath()
               ctx.arc(p.x + dx * prog, p.y + dy * prog, 1.4, 0, Math.PI * 2)
               ctx.fill()
@@ -145,7 +145,7 @@ const NetworkBackground = ({ cardRectRef }: NetworkBackgroundProps) => {
       pts.forEach(p => {
         const nodeAlpha = (p as any).alpha ?? 1
         const b = 0.35 + Math.sin(p.pulse) * 0.35
-        ctx.fillStyle = `rgba(215,213,209,${b * nodeAlpha})`
+        ctx.fillStyle = `rgba(235,235,242,${b * nodeAlpha})`
         ctx.beginPath(); ctx.arc(p.x, p.y, 1.3, 0, Math.PI * 2); ctx.fill()
       })
 
@@ -153,11 +153,11 @@ const NetworkBackground = ({ cardRectRef }: NetworkBackgroundProps) => {
       anchors.forEach((a, i) => {
         const bright = 0.3 + Math.sin(t * 2 + i * 0.9) * 0.25
         const g2 = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, 9)
-        g2.addColorStop(0, `rgba(220,218,214,${bright * 0.65})`)
+        g2.addColorStop(0, `rgba(235,235,242,${bright * 0.75})`)
         g2.addColorStop(1, 'rgba(0,0,0,0)')
         ctx.fillStyle = g2
         ctx.beginPath(); ctx.arc(a.x, a.y, 9, 0, Math.PI * 2); ctx.fill()
-        ctx.fillStyle = `rgba(235,233,229,${bright})`
+        ctx.fillStyle = `rgba(248,248,255,${bright})`
         ctx.beginPath(); ctx.arc(a.x, a.y, 1.6, 0, Math.PI * 2); ctx.fill()
       })
 
