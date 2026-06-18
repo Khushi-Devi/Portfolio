@@ -69,7 +69,7 @@ const Symbol = ({ type, accent }: { type: string; accent: string }) => {
   }
 }
 
-const ProjectDetail = ({ project, originRect, onClose }: ProjectDetailProps) => {
+const ProjectDetail = ({ project, onClose }: ProjectDetailProps) => {
   const overlayRef = useRef<HTMLDivElement>(null)
   const imageRef   = useRef<HTMLDivElement>(null)
 

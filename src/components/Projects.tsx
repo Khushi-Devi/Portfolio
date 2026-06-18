@@ -7,7 +7,12 @@ import ProjectCard from './ProjectCard'
 import ProjectDetail from './ProjectDetail'
 
 interface ProjectsProps {
-  cardRectRef: React.RefObject<{ x: number; y: number; w: number; h: number } | null>
+  cardRectRef: React.MutableRefObject<{
+  x: number
+  y: number
+  w: number
+  h: number
+} | null>
 }
 
 const Projects = ({ cardRectRef }: ProjectsProps) => {

@@ -9,7 +9,7 @@ import Assistant from './components/Assistant'
 import type { SkipRect } from './components/HeroText'
 
 export default function App() {
-  const [skipRects, setSkipRects] = useState<SkipRect[]>([])
+  const [, setSkipRects] = useState<SkipRect[]>([])
   const [networkOpacity, setNetworkOpacity] = useState(0)
   const [assistantOpen, setAssistantOpen] = useState(false)
   const heroRef     = useRef<HTMLElement>(null)

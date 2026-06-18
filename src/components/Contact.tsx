@@ -92,7 +92,7 @@ export default function Contact() {
       {/* ══════════════════════════════════════════
           SECTION 2 — Let's Talk (glass card)
       ══════════════════════════════════════════ */}
-      <section section id="lets-talk" style={{
+      <section  id="lets-talk" style={{
         position: 'relative', width: '100%', minHeight: '100vh',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', background: 'transparent',

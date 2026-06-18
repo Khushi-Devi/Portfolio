@@ -29,7 +29,7 @@ const NetworkBackground = ({ cardRectRef }: NetworkBackgroundProps) => {
 
     const TOTAL = 52
 
-    const makeNode = (i: number) => ({
+    const makeNode = (_i: number) => ({
       x: Math.random() * (W || window.innerWidth),
       y: Math.random() * (H || window.innerHeight),
       vx: (Math.random() - 0.5) * 0.06,
