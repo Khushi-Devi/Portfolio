@@ -13,6 +13,17 @@ const cardVariants = {
 export default function AboutSkills() {
   return (
     <>
+      <style>{`
+        @media (max-width: 860px) {
+          .who-i-am-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .what-i-know-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
+
       {/* ══════════════════════════════════════════
           SECTION 1 — Who I Am
       ══════════════════════════════════════════ */}
@@ -26,7 +37,7 @@ export default function AboutSkills() {
           alignItems: 'center',
           justifyContent: 'flex-start',
           background: 'transparent',
-          padding: '40px 0 40px',          // ← was 60px 0 60px
+          padding: '40px 0 40px',
           boxSizing: 'border-box',
         }}
       >
@@ -62,7 +73,7 @@ export default function AboutSkills() {
         </motion.div>
 
         {/* Three-column equal layout — full width, equal height */}
-        <div style={{
+        <div className="who-i-am-grid" style={{
           width: '100%',
           maxWidth: '1400px',
           padding: '0 48px',
@@ -116,38 +127,38 @@ export default function AboutSkills() {
               Aug 2024 – May 2028
             </p>
             <div
-  style={{
-    marginTop: '18px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-  }}
->
-  <p
-    style={{
-      fontFamily: "'DM Sans', sans-serif",
-      fontSize: '10px',
-      letterSpacing: '0.28em',
-      textTransform: 'uppercase',
-      color: 'rgba(200,198,194,0.50)',
-      margin: 0,
-    }}
-  >
-    Focus Areas
-  </p>
+              style={{
+                marginTop: '18px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px',
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '10px',
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(200,198,194,0.50)',
+                  margin: 0,
+                }}
+              >
+                Focus Areas
+              </p>
 
-  <p
-    style={{
-      fontFamily: "'DM Sans', sans-serif",
-      fontSize: '13px',
-      color: 'rgba(229,228,226,0.72)',
-      lineHeight: 1.6,
-      margin: 0,
-    }}
-  >
-    AI / ML · Full Stack · Data Analytics · Product Development
-  </p>
-</div>
+              <p
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  color: 'rgba(229,228,226,0.72)',
+                  lineHeight: 1.6,
+                  margin: 0,
+                }}
+              >
+                AI / ML · Full Stack · Data Analytics · Product Development
+              </p>
+            </div>
           </motion.div>
 
           {/* COL 2 — Currently (solid) + Quote (most translucent) stacked */}
@@ -220,55 +231,55 @@ export default function AboutSkills() {
                 justifyContent: 'flex-start',
                 gap: '10px',
                 flex: 1,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
                 }}
               >
-              <div
-  style={{
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  }}
->
-  <p
-    style={{
-      fontFamily: "'DM Sans', sans-serif",
-      fontSize: '10px',
-      letterSpacing: '0.3em',
-      textTransform: 'uppercase',
-      color: 'rgba(200,198,194,0.50)',
-      margin: 0,
-    }}
-  >
-    Wilson's Law
-  </p>
+                <p
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '10px',
+                    letterSpacing: '0.3em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(200,198,194,0.50)',
+                    margin: 0,
+                  }}
+                >
+                  Wilson's Law
+                </p>
 
-  <p
-  style={{
-    fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 'clamp(16px, 1.3vw, 20px)',
-    fontWeight: 400,
-    color: 'rgba(229,228,226,0.90)',
-    lineHeight: 1.6,
-    letterSpacing: '-0.01em',
-    margin: 0,
-  }}
->
-  "If you prioritize knowledge and intelligence, everything else follows."
-</p>
+                <p
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: 'clamp(16px, 1.3vw, 20px)',
+                    fontWeight: 400,
+                    color: 'rgba(229,228,226,0.90)',
+                    lineHeight: 1.6,
+                    letterSpacing: '-0.01em',
+                    margin: 0,
+                  }}
+                >
+                  "If you prioritize knowledge and intelligence, everything else follows."
+                </p>
 
-<p
-  style={{
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: '12px',
-    fontWeight: 500,
-    color: 'rgba(229,228,226,0.72)',
-    letterSpacing: '0.08em',
-    margin: '10px 0 0',
-  }}
->
-  — The principle I build by.
-</p>
-</div>
+                <p
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    color: 'rgba(229,228,226,0.72)',
+                    letterSpacing: '0.08em',
+                    margin: '10px 0 0',
+                  }}
+                >
+                  — The principle I build by.
+                </p>
+              </div>
             </motion.div>
 
           </div>
@@ -291,12 +302,12 @@ export default function AboutSkills() {
             }}
           >
             <div
-  style={{
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  }}
->
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+              }}
+            >
               <p style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: 'clamp(16px, 1.25vw, 19px)',
@@ -313,10 +324,10 @@ export default function AboutSkills() {
               <p style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: '14px',
-fontWeight: 400,
-color: 'rgba(200,198,194,0.75)',
-lineHeight: 1.8,
-margin: 0,
+                fontWeight: 400,
+                color: 'rgba(200,198,194,0.75)',
+                lineHeight: 1.8,
+                margin: 0,
               }}>
                 What has remained constant is my desire to build meaningful solutions —
                 and the standard I hold myself to. Every project, challenge, and new skill
@@ -324,7 +335,7 @@ margin: 0,
                 through technology.
               </p>
             </div>
-           
+
           </motion.div>
 
         </div>
@@ -375,7 +386,7 @@ margin: 0,
           </p>
         </motion.div>
 
-        <div style={{
+        <div className="what-i-know-grid" style={{
           width: '100%', maxWidth: '1100px', padding: '0 48px',
           boxSizing: 'border-box', display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)', gap: '28px',
